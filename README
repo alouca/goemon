@@ -1,0 +1,4 @@
+Goemon
+======
+
+Goemon is an electricity-monitoring deamon, written in golang. It currently supports just CurrentCost electricity monitors, reading the data from the serial port. It uses RRDTool to keep a usage database, and it features a build-in webserver to serve the data.
