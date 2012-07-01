@@ -1,0 +1,9 @@
+{
+        "logger.verbose": "yes",
+        "logger.debug": "yes",
+        "logger.output": "stdout",
+        "database.file": "/Users/alouca/Desktop/powermon.db",
+        "serial.path": "/dev/cu.PL2303-000014FD",
+        "serial.baud": 57600,
+        "webserver.address": ":8080"
+}

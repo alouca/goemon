@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+ <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>GoEMon Test Web Page</title>
+
+	<link href="/static/css/layout.css" rel="stylesheet" type="text/css">
+	<script language="javascript" type="text/javascript" src="/static/flot/jquery.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/flot/jquery.flot.js"></script>
+    <script language="javascript" type="text/javascript" src="/static/flot/jquery.flot.stack.js"></script>
+
+
+</head>
+<body>
+	<h1>Live Electricity Monitor</h1>
+    <div id="placeholder" style="width:600px;height:300px;"></div>
+
+<script type="text/javascript">
+$(function () {
+
+    // setup control widget
+    var updateInterval = 6000;
+
+    // setup plot
+    var options = {
+        series: { 
+        	shadowSize: 0,  // drawing is faster without shadows
+        	stack: true,
+        	lines: { show: true, fill: true, steps: false }
+         },
+         grid: { hoverable: true, clickable: true },
+         yaxis: { min: 0 }, 
+         xaxis: { tickDecimals: 0 }
+        //yaxis: { min: 0, max: 100 },
+        //xaxis: { show: false }
+    };
+
+    var plot = $.plot($("#placeholder"), [], options);
+    
+    function showTooltip(x, y, contents) {
+        $('<div id="tooltip">' + contents + '</div>').css( {
+            position: 'absolute',
+            display: 'none',
+            top: y + 5,
+            left: x + 5,
+            border: '1px solid #fdd',
+            padding: '2px',
+            'background-color': '#fee',
+            opacity: 0.80
+        }).appendTo("body").fadeIn(100);
+    }
+
+    var previousPoint = null;
+    $("#placeholder").bind("plothover", function (event, pos, item) {
+        $("#x").text(pos.x.toFixed(2));
+        $("#y").text(pos.y.toFixed(2));
+
+        if (item) {
+            if (previousPoint != item.dataIndex) {
+                previousPoint = item.dataIndex;
+                    
+                $("#tooltip").remove();
+                var x = item.datapoint[0].toFixed(2),
+                    y = item.datapoint[1].toFixed(2);
+                    
+                showTooltip(item.pageX, item.pageY,
+                            item.series.label + ": " + y +"W");
+            }
+            else {
+                $("#tooltip").remove();
+                previousPoint = null;            
+            }
+        }
+    });
+
+    function fetchData() {
+		$.getJSON('/data', function(data) {
+            console.log(data);
+
+            var i = 0;
+
+            $.each(data.Channels, function(key, val) {
+                var items = [];
+                $.each(val.Data, function(key, val) {
+                    items.push([key, val]);
+                });
+                data.Channels[key].data = items;
+                data.Channels[key].label = val.Label;
+            });
+
+
+
+            plot.setData([data.Channels[0], data.Channels[1], data.Channels[2]]);
+            plot.setupGrid();
+            plot.draw();
+
+        });
+
+        setTimeout(fetchData, updateInterval);
+    }
+
+    fetchData();
+
+});
+</script>
+
+
+</body>
+</html>

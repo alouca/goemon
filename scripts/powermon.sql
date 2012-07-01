@@ -1,0 +1,1 @@
+CREATE TABLE readings (r_id INTEGER PRIMARY KEY AUTOINCREMENT, r_date DATE, r_temperature REAL, r_ch1 INTEGER, r_ch2 INTEGER, r_ch3 INTEGER);
